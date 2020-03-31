@@ -23,7 +23,7 @@ fn main() {
             println!("Invalid replay path !");
         } else {
             let mut watcher: RecommendedWatcher = Watcher::new_immediate(|res| match res {
-                Ok(event) => play_sound(),
+                Ok(event) => play_sound(event),
                 Err(e) => println!("watch error: {:?}", e),
             })
             .unwrap();
@@ -39,10 +39,11 @@ fn main() {
     }
 }
 
-pub fn play_sound() {
-    let device = rodio::default_output_device().unwrap();
-    let source = rodio::Decoder::new(BufReader::new(File::open(&"sound.wav").unwrap())).unwrap();
-    rodio::play_raw(&device, source.convert_samples());
-
-    thread::sleep(Duration::from_secs(5));
+pub fn play_sound(event: Event) {
+    if event.kind.is_create() {
+        let device = rodio::default_output_device().unwrap();
+        let source = rodio::Decoder::new(BufReader::new(File::open(&"sound.wav").unwrap())).unwrap();
+        rodio::play_raw(&device, source.convert_samples());
+        thread::sleep(Duration::from_secs(5));
+    }
 }
